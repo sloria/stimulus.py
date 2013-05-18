@@ -6,12 +6,13 @@ except ImportError:
 config = {
 	'description': 'Wrapper classes for PsychoPy stimuli',
 	'author': 'Steve Loria',
-	# 'url': 'URL to get it at',
+	'url': 'https://github.com/sloria/stimulus.py',
 	'author_email': 'sloria1@gmail.com',
 	'version': '0.1',
 	'install_requires': ['nose'],
 	'packages': ['psychopy'],
-	'name': 'stimulus.py'
+	'py_modules': ['stimulus'],
+	'name': 'stimulus.py',
 }
 
 setup(**config)
