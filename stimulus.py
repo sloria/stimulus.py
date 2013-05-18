@@ -2,12 +2,14 @@
 Psychopy stimuli.
 """
 import ctypes  # used for input/output
+
 from psychopy import visual, core, event
 
 class Paradigm(object):
     """Represents a study paradigm.
     """
-    def __init__(self, window_dimensions=(720, 480), color='Black', escape_key=None, *args, **kwargs):
+    def __init__(self, window_dimensions=(720, 480), 
+                        color='Black', escape_key=None, *args, **kwargs):
         '''Initialize a paradigm.
 
         Arguments:
@@ -16,9 +18,11 @@ class Paradigm(object):
         escape_key - The keyboard button that exits the paradigm.
         '''
         if window_dimensions == 'full_screen':
-            self.window = visual.Window(fullscr=True, color=color, units='norm', *args, **kwargs)
+            self.window = visual.Window(fullscr=True, 
+                                        color=color, units='norm', *args, **kwargs)
         else:
-            self.window = visual.Window(window_dimensions, color=color, units='norm', *args, **kwargs)
+            self.window = visual.Window(window_dimensions, 
+                                        color=color, units='norm', *args, **kwargs)
 
         # List of stimuli for this study
         self.stimuli = []
@@ -41,7 +45,7 @@ class Paradigm(object):
         '''Adds multiple stimuli. 
 
         Args:
-        stimuli: A list of stimuli, formatted as tuples
+        stimuli - A list of stimuli, formatted as tuples
                     (see add_stimulus for how to format stimuli)
         '''
         for stimulus in stimuli:
@@ -65,27 +69,36 @@ class Paradigm(object):
         '''
         if len(self.stimuli) > 0:
             stim_data = self.stimuli.pop(0) # The next stimulus tuple
-            stim_class = stim_data[0] # The class of the stimulus
-            # Get stim args if passed
-            # If not, an empty tuple is passed to the stimulus constructor
-            stim_args = stim_data[1] if type(stim_data[1])==tuple else tuple()
-            # Get the kwargs if they are passed
-            try:
-                # the index of the kwargs in stim_data depends on whether 
-                # positional args were passed
-                stim_kwargs = stim_data[2] if stim_args else stim_data[1]  
-            except IndexError:
-                # If no kwargs were passed, just pass an empty dict
-                stim_kwargs = {}
-
             # Instantiate the stimulus object
-            stim = stim_class(self.window, *stim_args, **stim_kwargs)
-
-            # Show the object
+            stim = self._initialize_stimulus(stim_data)
+            # Show the stimulus
             stim.show()
             if verbose: print stim
         else:
             core.quit()
+
+    def _initialize_stimulus(self, stim_data):
+        '''Initialize a stimulus object from a tuple of the form:
+            (StimulusType, (arguments)).
+
+        Args:
+        stim_data - The stimulus and its arguments as a tuple
+
+        '''
+        stim_class = stim_data[0] # The class of the stimulus
+        # Get stim args if passed
+        # If not, an empty tuple is passed to the stimulus constructor
+        stim_args = stim_data[1] if type(stim_data[1])==tuple else tuple()
+        # Get the kwargs if they are passed
+        try:
+            # the index of the kwargs in stim_data depends on whether 
+            # positional args were passed
+            stim_kwargs = stim_data[2] if stim_args else stim_data[1]  
+        except IndexError:
+            # If no kwargs were passed, just pass an empty dict
+            stim_kwargs = {}
+        return stim_class(self.window, *stim_args, **stim_kwargs)
+
 
 
 class Stimulus(object):
@@ -163,12 +176,12 @@ class VideoRatingStimulus(VideoStimulus):
             self.header_text = None
 
         self.rating_scale = visual.RatingScale(self.window, low=low, high=high, 
-                                        tickMarks=tick_marks, precision=1,
-                                        pos=(0, -0.75), stretchHoriz=stretch_horizontal,
-                                        showAccept=False, acceptKeys=[None],
-                                        markerStyle=marker_style, markerColor=marker_color,
-                                        markerStart=marker_start,
-                                        *args, **kwargs)
+                            tickMarks=tick_marks, precision=1,
+                            pos=(0, -0.75), stretchHoriz=stretch_horizontal,
+                            showAccept=False, acceptKeys=[None],
+                            markerStyle=marker_style, markerColor=marker_color,
+                            markerStart=marker_start,
+                            *args, **kwargs)
         self.rating_scale.setDescription(rating_description)
         # The destination path to write the history to
         self.dest= destination_path
