@@ -32,8 +32,9 @@ par.play_all() # Play all stimuli. Press escape to quit
 
 Currently supported stimulus types: 
 * Text
-* VideoStimulus
-* VideoRatingStimulus
+* Audio
+* Video
+* VideoRating
 * Pause
 * WaitForKey
 * WaitForTTL

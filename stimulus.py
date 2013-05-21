@@ -136,17 +136,15 @@ class Text(Stimulus):
         self.duration = duration
         self.keys = keys
 
-
     def show(self):
         self.text.draw()
         self.window.flip()
         core.wait(self.duration)
         if self.keys:
-            for key in self.keys:
-                if key in event.waitKeys():
-                    self.window.flip()
-        else:
-            self.window.flip()
+            # Wait for keypress
+            wait_for_key(self.keys)
+        self.window.flip()
+
 
 class Audio(Stimulus):
     '''A simple audio stimulus.'''
@@ -264,7 +262,6 @@ class VideoRating(Video):
         while self.mov.status != visual.FINISHED:
             if self.button_box:
                 keys = self.button_box.getEvents(returnRaw=True, asKeys=True)
-                print keys
                 self.button_box.clearBuffer()
             self.mov.draw()
             self.rating_scale.draw()
@@ -305,8 +302,6 @@ class Pause(Stimulus):
 
     def show(self):
         core.wait(self.duration)
-
-
 
 
 class WaitForTTL(Stimulus):
@@ -366,10 +361,8 @@ class WaitForKey(Stimulus):
         self.event = event
 
     def show(self):
-        event.clearEvents()
-        for key in event.waitKeys():
-            if key in self.keys:
-                self.run_event()
+        wait_for_key(self.keys)
+        self.run_event()
 
     def run_event(self):
         if self.event == 'exit':
@@ -380,3 +373,16 @@ class WaitForKey(Stimulus):
             pass
         else:
             print "Warning: Event not recognized. Doing nothing."
+
+def wait_for_key(keys):
+    '''Wait for a key that is in a set of keys
+    to be pressed before proceeding.
+
+    Args:
+    keys - A list or tuple of keys.
+    '''
+    event.clearEvents()
+    while True:
+        if not set(keys)\
+                .isdisjoint(set(event.getKeys())):
+            break
