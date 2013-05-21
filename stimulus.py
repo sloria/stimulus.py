@@ -39,7 +39,8 @@ class Paradigm(object):
         >> paradigm.add_stimulus( (Text, ('Hi!', 3.0)) )
         '''
         assert type(stimulus) in (tuple, list), 'Stimulus must be a tuple of the form (StimulusType, (arguments))'
-        self.stimuli.append(stimulus)
+        stimulus_object = self._initialize_stimulus(stimulus)
+        return self.stimuli.append(stimulus_object)
 
     def add_stimuli(self, stimuli):
         '''Adds multiple stimuli. 
@@ -68,9 +69,7 @@ class Paradigm(object):
         '''Plays the next stimuli in the sequence.
         '''
         if len(self.stimuli) > 0:
-            stim_data = self.stimuli.pop(0) # The next stimulus tuple
-            # Instantiate the stimulus object
-            stim = self._initialize_stimulus(stim_data)
+            stim = self.stimuli.pop(0) # The next stimulus tuple
             # Show the stimulus
             stim.show()
             if verbose: print stim
@@ -157,11 +156,11 @@ class VideoRatingStimulus(VideoStimulus):
         
         self.window = window
         # FIXME: video should mantain aspect ratio regardless of window dimensions
-        self.mov = visual.MovieStim(self.window, 
-                                    movie, 
+        self.mov = visual.MovieStim(self.window,
+                                    movie,
                                     size=movie_dimensions,
                                     units=units,
-                                    flipVert=False, 
+                                    flipVert=False,
                                     loop=False)
 
         # Header text

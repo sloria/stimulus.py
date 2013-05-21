@@ -2,15 +2,6 @@
 
 stimulus.py implements wrapper classes for [PsychoPy](http://www.psychopy.org/) stimuli, allowing for a consistent and easy-to-use API for presenting a study paradigm.
 
-Currently supported stimulus types: 
-* Text
-* VideoStimulus
-* VideoRatingStimulus
-* Pause
-* WaitForKey
-* WaitForTTL
-
-More to come. 
 
 Example usage (also in `paradigm_example.py`):
 
@@ -39,8 +30,20 @@ par.add_stimuli(stimuli)  # Add the stimuli
 par.play_all() # Play all stimuli. Press escape to quit
 ```
 
+Currently supported stimulus types: 
+* Text
+* VideoStimulus
+* VideoRatingStimulus
+* Pause
+* WaitForKey
+* WaitForTTL
+
+More to come. 
+
 ## Defining new stimulus types
-It's easy to create your own custom stimulus types. Just create a subclass of `Stimulus` and implement its `__init__` and `show()` methods. Make sure to set the `window` instance variable in the constructor.
+It's easy to create your own custom stimulus types. Just create a subclass of `Stimulus` and implement its `__init__` and `show()` methods. 
+
+**IMPORTANT: Make sure to set the `window` instance variable in the constructor.**
 
 Example:
 
@@ -50,10 +53,11 @@ from stimulus import Stimulus, Paradigm
 
 class HelloWorldStim(Stimulus):
     """A stimulus that just shows "Hello, World!" in green."""
-    def __init__(self, window, duration=2.0):
+    def __init__(self, window, duration=2.0, *args, **kwargs):
         self.window = window
         self.text = visual.TextStim(self.window, 
-                        text="Hello, World!", color="Green")
+                        text="Hello, World!", color="Green",
+                        *args, **kwargs)
         self.duration = duration
 
     def show(self):

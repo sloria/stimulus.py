@@ -1,17 +1,23 @@
 import unittest
 from nose.tools import *
-import stimulus
 
-class BasicTest(unittest.TestCase):
+from stimulus import *
+
+class TestStimulus(unittest.TestCase):
 
     def setUp(self):
-        print "SETUP!"
+        self.par = Paradigm()
         
     def tearDown(self):
         print "TEAR DOWN!"
         
-    def test_basic(self):
-        assert_equal(1 + 1, 2)
+    def _create_stimulus(self, stim_class):
+        pass
+
+    def test_text_stim(self):
+        text = (Text, ('Hello world!', 5.0))
+        text_stim = self.par._initialize_stimulus(text)        
+        assert_true(isinstance(text_stim, Text))
 
 if __name__ == '__main__':
     unittest.main()
