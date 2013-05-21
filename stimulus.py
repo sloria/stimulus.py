@@ -3,7 +3,7 @@ Psychopy stimuli.
 """
 import ctypes  # used for input/output
 
-from psychopy import visual, core, event
+from psychopy import core, visual, sound, event
 
 class Paradigm(object):
     """Represents a study paradigm.
@@ -39,8 +39,7 @@ class Paradigm(object):
         >> paradigm.add_stimulus( (Text, ('Hi!', 3.0)) )
         '''
         assert type(stimulus) in (tuple, list), 'Stimulus must be a tuple of the form (StimulusType, (arguments))'
-        stimulus_object = self._initialize_stimulus(stimulus)
-        return self.stimuli.append(stimulus_object)
+        self.stimuli.append(stimulus)
 
     def add_stimuli(self, stimuli):
         '''Adds multiple stimuli. 
@@ -69,7 +68,9 @@ class Paradigm(object):
         '''Plays the next stimuli in the sequence.
         '''
         if len(self.stimuli) > 0:
-            stim = self.stimuli.pop(0) # The next stimulus tuple
+            stim_data = self.stimuli.pop(0) # The next stimulus tuple
+            # Instantiate the stimulus object
+            stim = self._initialize_stimulus(stim_data)
             # Show the stimulus
             stim.show()
             if verbose: print stim
@@ -99,9 +100,9 @@ class Paradigm(object):
         return stim_class(self.window, *stim_args, **stim_kwargs)
 
 
-
 class Stimulus(object):
-    """An abstract stimulus class.
+    """An abstract stimulus class. All stimulus types will inherit
+    from this class.
     """
     def show(self):
         '''Show the stimuli. This must be implemented by
@@ -114,10 +115,79 @@ class Stimulus(object):
         core.quit()
 
 
-class VideoStimulus(Stimulus):
+class Text(Stimulus):
+    '''A text stimulus.
+    '''
+    def __init__(self, window, text, duration=2.0, keys=None):
+        '''Initialize a text stimulus.
+
+        Args:
+        window - The window object
+        text - text to display
+        duration - the duration the text will appear
+        keys - list of keys to press to continue to next stimulus. If None, 
+                will automatically go to the next stimulus.
+
+        Additional args and kwargs are passed to the visual.TextStim 
+        constructor.
+        '''
+        self.window = window
+        self.text = visual.TextStim(self.window, text=text, units='norm')
+        self.duration = duration
+        self.keys = keys
+
+
+    def show(self):
+        self.text.draw()
+        self.window.flip()
+        core.wait(self.duration)
+        if self.keys:
+            for key in self.keys:
+                if key in event.waitKeys():
+                    self.window.flip()
+        else:
+            self.window.flip()
+
+class Audio(Stimulus):
+    '''A simple audio stimulus.'''
+    def __init__(self, window,
+                    value,
+                    text=None,
+                    *args, **kwargs):
+        '''Constructor for the Audio stimulus.
+
+        Arguments:
+        value - A number (pitch in Hz), string for a note,
+                or string for a filename.
+                For more info, see:
+                http://www.psychopy.org/api/sound.html
+        text - Text to display on screen (Optional).
+
+        Additional args and kwargs are passed to the 
+        sound.Sound constructor.
+        '''
+        self.window = window
+        self.sound = sound.Sound(value, *args, **kwargs)
+        self.text = visual.TextStim(self.window, text=text)
+
+    def show(self):
+        if self.text: self.text.draw()
+        self.window.flip()
+        self.sound.play()
+        core.wait(self.sound.getDuration())
+
+
+class Video(Stimulus):
     '''A basic video stimulus.
     '''
     def __init__(self, window, movie, movie_dimensions=None, *args, **kwargs):
+        '''Constructor for the Video stimulus.
+
+        Arguments:
+            movie - A filename (string) for the video file.
+            movie_dimensions - Movie dimensions. If not specified, defaults to
+                        50\% of the window area.
+        '''
         self.window = window
         movie_dims = None
         if movie_dimensions:
@@ -137,7 +207,7 @@ class VideoStimulus(Stimulus):
         self.window.flip()
 
 
-class VideoRatingStimulus(VideoStimulus):
+class VideoRating(Video):
     '''A stimulus with simultaneous video playback and valence rating (Likert).
     Ratings are saved to a CSV file in where each row is of the format: Rating,Time
     '''
@@ -156,11 +226,11 @@ class VideoRatingStimulus(VideoStimulus):
         
         self.window = window
         # FIXME: video should mantain aspect ratio regardless of window dimensions
-        self.mov = visual.MovieStim(self.window,
-                                    movie,
+        self.mov = visual.MovieStim(self.window, 
+                                    movie, 
                                     size=movie_dimensions,
                                     units=units,
-                                    flipVert=False,
+                                    flipVert=False, 
                                     loop=False)
 
         # Header text
@@ -237,35 +307,6 @@ class Pause(Stimulus):
         core.wait(self.duration)
 
 
-class Text(Stimulus):
-    '''A text stimulus.
-    '''
-    def __init__(self, window, text, duration=2.0, keys=None):
-        '''Initialize a text stimulus.
-
-        Args:
-        window - The window object
-        text - text to display
-        duration - the duration the text will appear
-        keys - list of keys to press to continue to next stimulus. If None, 
-                will automatically go to the next stimulus.
-        '''
-        self.window = window
-        self.text = visual.TextStim(self.window, text=text, units='norm')
-        self.duration = duration
-        self.keys = keys
-
-
-    def show(self):
-        self.text.draw()
-        self.window.flip()
-        core.wait(self.duration)
-        if self.keys:
-            for key in self.keys:
-                if key in event.waitKeys():
-                    self.window.flip()
-        else:
-            self.window.flip()
 
 
 class WaitForTTL(Stimulus):
