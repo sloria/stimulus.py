@@ -72,8 +72,8 @@ class Paradigm(object):
             # Instantiate the stimulus object
             stim = self._initialize_stimulus(stim_data)
             # Show the stimulus
-            stim.show()
             if verbose: print stim
+            return stim.show()
         else:
             core.quit()
 
@@ -144,6 +144,7 @@ class Text(Stimulus):
             # Wait for keypress
             wait_for_key(self.keys)
         self.window.flip()
+        return self
 
 
 class Audio(Stimulus):
@@ -173,6 +174,7 @@ class Audio(Stimulus):
         self.window.flip()
         self.sound.play()
         core.wait(self.sound.getDuration())
+        return self
 
 
 class Video(Stimulus):
@@ -203,6 +205,7 @@ class Video(Stimulus):
             self.mov.draw()
             self.window.update()
         self.window.flip()
+        return self
 
 
 class VideoRating(Video):
@@ -269,6 +272,7 @@ class VideoRating(Video):
             self.window.flip()
         # Write the history to a csv
         self.write_history()
+        return self
 
     def write_history(self):
         '''Writes the rating history data to a CSV file 
@@ -302,6 +306,7 @@ class Pause(Stimulus):
 
     def show(self):
         core.wait(self.duration)
+        return self
 
 
 class WaitForTTL(Stimulus):
@@ -331,6 +336,7 @@ class WaitForTTL(Stimulus):
             current = self.par.Inp32(self.address)
         # After the TTL pulse, run the event
         self.run_event()
+        return self
 
     def run_event(self):
         """Execute the specified event (either exit or continue).
@@ -363,6 +369,7 @@ class WaitForKey(Stimulus):
     def show(self):
         wait_for_key(self.keys)
         self.run_event()
+        return self
 
     def run_event(self):
         if self.event == 'exit':
@@ -382,7 +389,4 @@ def wait_for_key(keys):
     keys - A list or tuple of keys.
     '''
     event.clearEvents()
-    while True:
-        if not set(keys)\
-                .isdisjoint(set(event.getKeys())):
-            break
+    event.waitKeys(keyList=keys)
