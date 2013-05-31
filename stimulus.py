@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Classes that make it easy to create and present a series of 
 Psychopy stimuli.
 """
@@ -147,6 +148,43 @@ class Text(Stimulus):
         return self
 
 
+class Image(Stimulus):
+    '''A simple image stimulus.
+
+    Arguments:
+    image - (String) File path of image file.
+    text - Optional text to show at the top of the screen.
+    Additional args and kwargs are passed to the visual.ImageStim
+    constructor.'''
+
+    def __init__(self, window,
+                    image, duration,
+                    text=None, text_size=0.15, units="norm", keys=None,
+                    *args, **kwargs):
+        self.window = window
+        self.image = visual.ImageStim(self.window, image=image, *args, **kwargs)
+        self.text = visual.TextStim(self.window, 
+                                    text=text, 
+                                    pos=(0, 0.7), 
+                                    height=text_size,
+                                    wrapWidth=2.0, # ??
+                                    units=units) if text else None
+        self.duration = duration
+        self.keys = keys
+
+    def show(self):
+        self.image.draw()
+        if self.text: self.text.draw()
+        # Show image
+        self.window.flip()
+        core.wait(self.duration)
+        if self.keys:
+            # Wait for keypress
+            wait_for_key(self.keys)
+        # Hide image
+        self.window.flip()
+        return self
+
 class Audio(Stimulus):
     '''A simple audio stimulus.'''
     def __init__(self, window,
@@ -167,7 +205,7 @@ class Audio(Stimulus):
         '''
         self.window = window
         self.sound = sound.Sound(value, *args, **kwargs)
-        self.text = visual.TextStim(self.window, text=text)
+        self.text = visual.TextStim(self.window, text=text) if text else None
 
     def show(self):
         if self.text: self.text.draw()
