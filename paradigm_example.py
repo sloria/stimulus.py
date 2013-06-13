@@ -13,9 +13,8 @@ def main():
     # Each stimuli is added as a tuple of the form (StimulusClass, (arguments))
     stimuli = [
                 (Text, ('This text will disappear in 5 seconds. '
-                        'Then press any key at the blank screen to continue '
-                        'or press "q" to quit.', 5.0)),
-                (WaitForKey, (['q'], 'exit')),
+                        'Then press the "c" key to continue ', 5.0)),
+                (WaitForKey, (['c'], 'continue')),
                 (Text, ("Here's some more text", )),  # duration defaults to 2 sec
                 # You can also specify keyword arguments in a dictionary
                 (Text, 
