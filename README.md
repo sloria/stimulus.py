@@ -37,7 +37,6 @@ Currently supported stimulus types:
 * VideoRating
 * Pause
 * WaitForKey
-* WaitForTTL
 
 More to come. 
 
