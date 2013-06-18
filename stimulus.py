@@ -6,7 +6,8 @@ import os
 import time
 from inspect import ismethod
 
-from psychopy import core, visual, sound, event, logging
+from psychopy import core, visual, event, logging
+from psychopy.sound import Sound
 
 class Paradigm(object):
     """Represents a study paradigm.
@@ -182,7 +183,7 @@ class Paradigm(object):
         stim_class = stim_data[0] # The class of the stimulus
         # Get stim args if passed
         # If not, an empty tuple is passed to the stimulus constructor
-        stim_args = stim_data[1] if type(stim_data[1])==tuple else tuple()
+        stim_args = stim_data[1] if type(stim_data[1]) in (tuple, list) else tuple()
         # Get the kwargs if they are passed
         try:
             # the index of the kwargs in stim_data depends on whether 
@@ -217,7 +218,13 @@ class Stimulus(object):
         '''Flips the window.
         '''
         self.window.flip()
-        return self
+        return None
+
+    def display_text(self, text, flip=True, *args, **kwargs):
+        text = visual.TextStim(self.window, text, *args, **kwargs)
+        text.draw()
+        if flip: self.flip()
+        return None
 
 class Text(Stimulus):
     '''A text stimulus.
@@ -235,7 +242,7 @@ class Text(Stimulus):
         '''
         super(Text, self).__init__(window)
         self.text = visual.TextStim(self.window, 
-                        text=text, units='norm',
+                        text=text,
                         *args, **kwargs)
         self.duration = duration
         self.keys = keys
@@ -304,13 +311,13 @@ class Image(Stimulus):
 class Audio(Stimulus):
     '''A simple audio stimulus.'''
     def __init__(self, window,
-                    value,
+                    sound,
                     text=None,
                     *args, **kwargs):
         '''Constructor for the Audio stimulus.
 
         Arguments:
-        value - A number (pitch in Hz), string for a note,
+        sound - A number (pitch in Hz), string for a note,
                 or string for a filename.
                 For more info, see:
                 http://www.psychopy.org/api/sound.html
@@ -320,15 +327,18 @@ class Audio(Stimulus):
         sound.Sound constructor.
         '''
         super(Audio, self).__init__(window)
-        self.sound = sound.Sound(value, *args, **kwargs)
-        self.text = visual.TextStim(self.window, text=text) if text else None
+        self.sound = Sound(sound, *args, **kwargs)
+        self.text = text
 
     def show(self):
-        if self.text: self.text.draw()
-        self.window.flip()
+        self.display_text(self.text)
+        self.play_sound()
+        return super(Audio, self).show()
+
+    def play_sound(self):
         self.sound.play()
         core.wait(self.sound.getDuration())
-        return super(Audio, self).show()
+        return None
 
 class Video(Stimulus):
     '''A basic video stimulus.
@@ -468,7 +478,7 @@ class Pause(Stimulus):
 
 class WaitForKey(Stimulus):
     '''Wait for a keypress.'''
-    def __init__(self, window, keys, event='continue'):
+    def __init__(self, window, keys=[''], event='continue'):
         '''Initialize the stimulus.
 
         Args:
@@ -496,7 +506,7 @@ class WaitForKey(Stimulus):
         else:
             logging.warn("Event not recognized. Doing nothing.")
 
-def wait_for_key(keys):
+def wait_for_key(keys=['']):
     '''Wait for a key that is in a set of keys
     to be pressed before proceeding.
 
