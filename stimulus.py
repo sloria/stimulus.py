@@ -523,5 +523,8 @@ def wait_for_key(keys=['']):
 
 def has_method(obj, method_name):
     '''Utility method that checks if an object has a method bound to it.
+
+    Arguments:
+    - `method_name`: A string, the name of the method to be checked.
     '''
-    return hasattr(obj, 'get_data') and ismethod(getattr(obj, 'get_data'))
+    return hasattr(obj, method_name) and ismethod(getattr(obj, method_name))
